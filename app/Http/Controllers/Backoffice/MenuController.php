@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backoffice;
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class MenuController extends Controller
 {
@@ -55,5 +56,40 @@ class MenuController extends Controller
         $menu->delete();
 
         return response()->json(['deleted' => true]);
+    }
+
+    public function menu()
+    {
+        $menus = Menu::query()
+            ->orderBy('parent_id')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        $grouped = $menus->groupBy('parent_id');
+
+        $buildTree = function ($parentId) use (&$buildTree, $grouped) {
+            return ($grouped->get($parentId, collect()))
+                ->map(function ($menu) use (&$buildTree) {
+                    return [
+                        'id' => $menu->id,
+                        'name' => $menu->name,
+                        'route' => $menu->route,
+                        'icon' => $menu->icon,
+                        'parent_id' => $menu->parent_id,
+                        'sort_order' => $menu->sort_order,
+                        'status' => (bool) $menu->status,
+                        'children' => $buildTree($menu->id),
+                    ];
+                })
+                ->values();
+        };
+
+        $result = $buildTree(null);
+
+        return response()->json([
+            "status" => true,
+            "result" => $result
+        ]);
     }
 }

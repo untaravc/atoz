@@ -14,3 +14,4 @@ Route::apiResource('users', UserController::class);
 Route::apiResource('menus', MenuController::class);
 Route::apiResource('roles', RoleController::class);
 Route::apiResource('menu-role', MenuRoleController::class);
+Route::get('menu', [MenuController::class, 'menu']);

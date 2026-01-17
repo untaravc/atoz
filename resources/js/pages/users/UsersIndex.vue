@@ -3,13 +3,13 @@
         <div class="flex flex-col gap-6">
             <section class="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-slate-900">Roles</h2>
+                    <h2 class="text-lg font-semibold text-slate-900">Users</h2>
                     <div class="flex items-center gap-2">
                         <button
-                            class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                            class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                             type="button"
                             :disabled="refreshing"
-                            @click="refreshRoles"
+                            @click="refreshUsers"
                         >
                             <span
                                 v-if="refreshing"
@@ -22,7 +22,7 @@
                             type="button"
                             @click="openCreate"
                         >
-                            Create role
+                            Create user
                         </button>
                     </div>
                 </div>
@@ -39,50 +39,43 @@
                         <thead class="text-xs uppercase tracking-wide text-slate-400">
                             <tr>
                                 <th class="px-3 py-2">Name</th>
-                                <th class="px-3 py-2">Status</th>
+                                <th class="px-3 py-2">Email</th>
+                                <th class="px-3 py-2">Role</th>
                                 <th class="px-3 py-2 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="(role, index) in roles" :key="role.id">
-                                <td class="px-3 py-3 font-medium text-slate-900">{{ role.name }}</td>
-                                <td class="px-3 py-3">
-                                    <span
-                                        class="rounded-full px-3 py-1 text-xs font-semibold"
-                                        :class="role.status ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'"
-                                    >
-                                        {{ role.status ? 'Active' : 'Inactive' }}
-                                    </span>
-                                </td>
+                            <tr v-for="(user, index) in users" :key="user.id">
+                                <td class="px-3 py-3 font-medium text-slate-900">{{ user.name }}</td>
+                                <td class="px-3 py-3">{{ user.email }}</td>
+                                <td class="px-3 py-3">{{ user.role_id ?? '-' }}</td>
                                 <td class="px-3 py-3 text-right">
-                                    <div class="relative inline-flex justify-end" data-role-menu>
+                                    <div class="relative inline-flex justify-end">
                                         <button
                                             class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50"
                                             type="button"
-                                            :aria-expanded="openMenuId === role.id"
+                                            :aria-expanded="openMenuId === user.id"
                                             aria-label="Open actions"
-                                            @click="toggleMenu(role.id)"
-                                            data-role-menu
+                                            @click="toggleMenu(user.id)"
                                         >
                                             <VIcon name="fa-ellipsis-v" class="h-4 w-4" />
                                         </button>
                                         <div
-                                            v-if="openMenuId === role.id"
+                                            v-if="openMenuId === user.id"
                                             class="absolute right-0 z-10 w-32 rounded-lg border border-slate-200 bg-white py-1 text-left text-xs shadow-lg"
                                             :class="isBottomMenu(index) ? 'bottom-10' : 'top-10'"
-                                            data-role-menu
                                         >
                                             <button
                                                 class="block w-full px-3 py-2 text-left text-slate-600 hover:bg-slate-50"
                                                 type="button"
-                                                @click="startEdit(role)"
+                                                @click="startEdit(user)"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 class="block w-full px-3 py-2 text-left text-rose-600 hover:bg-rose-50"
                                                 type="button"
-                                                @click="openDelete(role)"
+                                                @click="openDelete(user)"
                                             >
                                                 Delete
                                             </button>
@@ -92,15 +85,15 @@
                             </tr>
                         </tbody>
                     </table>
-                    <p v-if="roles.length === 0 && !loading" class="mt-4 text-sm text-slate-500">No roles found.</p>
-                    <p v-if="loading" class="mt-4 text-sm text-slate-500">Loading roles...</p>
+                    <p v-if="users.length === 0 && !loading" class="mt-4 text-sm text-slate-500">No users found.</p>
+                    <p v-if="loading" class="mt-4 text-sm text-slate-500">Loading users...</p>
                 </div>
                 <PaginationNav
                     :current-page="currentPage"
                     :last-page="lastPage"
-                    :total="totalItems || roles.length"
-                    :from="roles.length ? (currentPage - 1) * perPage + 1 : 0"
-                    :to="Math.min(currentPage * perPage, totalItems || roles.length)"
+                    :total="totalItems || users.length"
+                    :from="users.length ? (currentPage - 1) * perPage + 1 : 0"
+                    :to="Math.min(currentPage * perPage, totalItems || users.length)"
                     :loading="loading"
                     @page-change="goToPage"
                 />
@@ -109,25 +102,53 @@
 
         <Modal
             :open="formOpen"
-            :title="editing ? 'Edit role' : 'Create role'"
-            eyebrow="Roles"
+            :title="editing ? 'Edit user' : 'Create user'"
+            eyebrow="Users"
             @close="closeForm"
         >
             <form class="space-y-4" @submit.prevent="handleSubmit">
                 <div>
-                    <label class="text-sm font-medium text-slate-600" for="role-name">Role name</label>
+                    <label class="text-sm font-medium text-slate-600" for="user-name">Name</label>
                     <input
-                        id="role-name"
+                        id="user-name"
                         v-model="form.name"
                         class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-slate-400 focus:outline-none"
-                        placeholder="e.g. Manager"
+                        placeholder="e.g. Jane Doe"
                         required
                         type="text"
                     />
                 </div>
-                <div class="flex items-center gap-2">
-                    <input id="role-status" v-model="form.status" class="h-4 w-4" type="checkbox" />
-                    <label class="text-sm text-slate-600" for="role-status">Active</label>
+                <div>
+                    <label class="text-sm font-medium text-slate-600" for="user-email">Email</label>
+                    <input
+                        id="user-email"
+                        v-model="form.email"
+                        class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-slate-400 focus:outline-none"
+                        placeholder="jane@example.com"
+                        required
+                        type="email"
+                    />
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-slate-600" for="user-password">Password</label>
+                    <input
+                        id="user-password"
+                        v-model="form.password"
+                        class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-slate-400 focus:outline-none"
+                        placeholder="Leave blank to keep current"
+                        :required="!editing"
+                        type="password"
+                    />
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-slate-600" for="user-role">Role ID</label>
+                    <input
+                        id="user-role"
+                        v-model.number="form.role_id"
+                        class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-slate-400 focus:outline-none"
+                        placeholder="Optional"
+                        type="number"
+                    />
                 </div>
                 <p v-if="error" class="text-xs text-rose-500">{{ error }}</p>
                 <div class="flex items-center justify-end gap-2">
@@ -148,16 +169,16 @@
                             v-if="saving"
                             class="h-3 w-3 animate-spin rounded-full border-2 border-white/60 border-t-white"
                         ></span>
-                        {{ editing ? 'Update role' : 'Create role' }}
+                        {{ editing ? 'Update user' : 'Create user' }}
                     </button>
                 </div>
             </form>
         </Modal>
 
-        <Modal :open="deleteOpen" title="Delete role" eyebrow="Roles" @close="closeDelete">
+        <Modal :open="deleteOpen" title="Delete user" eyebrow="Users" @close="closeDelete">
             <p class="text-sm text-slate-600">
                 Are you sure you want to delete
-                <span class="font-semibold text-slate-900">{{ selectedRole?.name }}</span>?
+                <span class="font-semibold text-slate-900">{{ selectedUser?.name }}</span>?
             </p>
             <template #footer>
                 <button
@@ -186,7 +207,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { reactive, ref, onMounted, computed } from 'vue';
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/css/index.css';
 import Modal from '../components/Modal.vue';
@@ -195,7 +216,7 @@ import { apiDelete, apiGet, apiPatch, apiPost } from '../../fetch_api.js';
 import { useConfigLoaderStore } from '../../states/config_loader';
 import { toaster } from '../../utils/utils.js';
 
-const roles = ref([]);
+const users = ref([]);
 const loading = ref(false);
 const refreshing = ref(false);
 const saving = ref(false);
@@ -208,23 +229,25 @@ const error = ref('');
 const editing = ref(false);
 const formOpen = ref(false);
 const deleteOpen = ref(false);
-const selectedRole = ref(null);
+const selectedUser = ref(null);
 const openMenuId = ref(null);
 const form = reactive({
     id: null,
     name: '',
-    status: true,
+    email: '',
+    password: '',
+    role_id: null,
 });
 
 const loaderConfig = useConfigLoaderStore();
 const overlayConfig = computed(() => loaderConfig.overlay);
 
-const fetchRoles = async (page = currentPage.value) => {
+const fetchUsers = async (page = currentPage.value) => {
     loading.value = true;
     error.value = '';
     try {
-        const data = await apiGet(`/api/roles?page=${page}`);
-        roles.value = Array.isArray(data) ? data : data.data || [];
+        const data = await apiGet(`/api/users?page=${page}`);
+        users.value = Array.isArray(data) ? data : data.data || [];
         if (data && typeof data === 'object' && 'current_page' in data) {
             currentPage.value = data.current_page ?? page;
             lastPage.value = data.last_page ?? 1;
@@ -238,21 +261,21 @@ const fetchRoles = async (page = currentPage.value) => {
         } else {
             currentPage.value = 1;
             lastPage.value = 1;
-            totalItems.value = roles.value.length;
+            totalItems.value = users.value.length;
         }
     } catch (err) {
-        error.value = 'Failed to load roles.';
+        error.value = 'Failed to load users.';
     } finally {
         loading.value = false;
     }
 };
 
-const refreshRoles = async () => {
+const refreshUsers = async () => {
     if (refreshing.value) {
         return;
     }
     refreshing.value = true;
-    await fetchRoles(currentPage.value);
+    await fetchUsers(currentPage.value);
     refreshing.value = false;
 };
 
@@ -260,36 +283,15 @@ const goToPage = async (page) => {
     if (loading.value || page < 1 || page > lastPage.value || page === currentPage.value) {
         return;
     }
-    await fetchRoles(page);
-};
-
-const toggleMenu = (roleId) => {
-    openMenuId.value = openMenuId.value === roleId ? null : roleId;
-};
-
-const closeMenu = () => {
-    openMenuId.value = null;
-};
-
-const isBottomMenu = (index) => {
-    return roles.value.length - index <= 2;
-};
-
-const handleDocumentClick = (event) => {
-    if (!openMenuId.value) {
-        return;
-    }
-    const target = event.target;
-    if (target && target.closest && target.closest('[data-role-menu]')) {
-        return;
-    }
-    closeMenu();
+    await fetchUsers(page);
 };
 
 const resetForm = () => {
     form.id = null;
     form.name = '';
-    form.status = true;
+    form.email = '';
+    form.password = '';
+    form.role_id = null;
     editing.value = false;
 };
 
@@ -305,55 +307,82 @@ const closeForm = () => {
     }
 };
 
+const toggleMenu = (userId) => {
+    openMenuId.value = openMenuId.value === userId ? null : userId;
+};
+
+const closeMenu = () => {
+    openMenuId.value = null;
+};
+
+const isBottomMenu = (index) => {
+    return users.value.length - index <= 2;
+};
+
 const handleSubmit = async () => {
     error.value = '';
     saving.value = true;
     const payload = {
         name: form.name.trim(),
-        status: form.status,
+        email: form.email.trim(),
     };
+
+    if (form.role_id) {
+        payload.role_id = form.role_id;
+    }
+
+    if (form.password) {
+        payload.password = form.password;
+    }
 
     try {
         if (editing.value) {
-            await apiPatch(`/api/roles/${form.id}`, payload);
-            toaster('Role updated');
+            await apiPatch(`/api/users/${form.id}`, payload);
+            toaster('User updated');
         } else {
-            await apiPost('/api/roles', payload);
-            toaster('Role created');
+            if (!payload.password) {
+                error.value = 'Password is required.';
+                saving.value = false;
+                return;
+            }
+            await apiPost('/api/users', payload);
+            toaster('User created');
         }
 
         formOpen.value = false;
         resetForm();
-        await fetchRoles();
+        await fetchUsers();
     } catch (err) {
-        error.value = 'Failed to save role.';
+        error.value = 'Failed to save user.';
     } finally {
         saving.value = false;
     }
 };
 
-const startEdit = (role) => {
+const startEdit = (user) => {
     closeMenu();
-    form.id = role.id;
-    form.name = role.name || '';
-    form.status = Boolean(role.status);
+    form.id = user.id;
+    form.name = user.name || '';
+    form.email = user.email || '';
+    form.password = '';
+    form.role_id = user.role_id ?? null;
     editing.value = true;
     formOpen.value = true;
 };
 
-const openDelete = (role) => {
+const openDelete = (user) => {
     closeMenu();
-    selectedRole.value = role;
+    selectedUser.value = user;
     deleteOpen.value = true;
 };
 
 const closeDelete = () => {
     deleteOpen.value = false;
-    selectedRole.value = null;
+    selectedUser.value = null;
 };
 
 const confirmDelete = async () => {
-    if (!selectedRole.value) {
+    if (!selectedUser.value) {
         return;
     }
 
@@ -361,27 +390,20 @@ const confirmDelete = async () => {
     deleting.value = true;
 
     try {
-        await apiDelete(`/api/roles/${selectedRole.value.id}`);
-        toaster('Role deleted');
-        await fetchRoles();
-        if (editing.value && form.id === selectedRole.value.id) {
+        await apiDelete(`/api/users/${selectedUser.value.id}`);
+        toaster('User deleted');
+        await fetchUsers();
+        if (editing.value && form.id === selectedUser.value.id) {
             resetForm();
         }
         closeDelete();
         closeMenu();
     } catch (err) {
-        error.value = 'Failed to delete role.';
+        error.value = 'Failed to delete user.';
     } finally {
         deleting.value = false;
     }
 };
 
-onMounted(() => {
-    fetchRoles();
-    document.addEventListener('click', handleDocumentClick);
-});
-
-onBeforeUnmount(() => {
-    document.removeEventListener('click', handleDocumentClick);
-});
+onMounted(fetchUsers);
 </script>

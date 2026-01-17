@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Layout from './Layout.vue';
 import RolesIndex from './pages/roles/RolesIndex.vue';
 import DashboardIndex from './pages/dashboard/DashboardIndex.vue';
+import UsersIndex from './pages/users/UsersIndex.vue';
 
 const routes = [
     {
@@ -18,6 +19,11 @@ const routes = [
                 path: '/roles',
                 name: 'roles',
                 component: RolesIndex,
+            },
+            {
+                path: '/users',
+                name: 'users',
+                component: UsersIndex,
             },
         ]
     },
