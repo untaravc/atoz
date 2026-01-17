@@ -11,7 +11,7 @@
         <div class="flex min-h-screen flex-col lg:pl-72">
             <HeaderBar @toggle-sidebar="sidebarOpen = true" />
             <main class="flex-1 px-6 py-8">
-                <slot />
+                <RouterView />
             </main>
             <FooterBar />
         </div>

@@ -21,10 +21,10 @@
         <div class="flex-1 overflow-y-auto px-4 py-6">
             <p class="px-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Main</p>
             <nav class="mt-4 space-y-1 text-sm font-medium">
-                <a class="flex items-center gap-3 rounded-lg bg-slate-900 px-3 py-2 text-white" href="#">
+                <RouterLink class="flex items-center gap-3 rounded-lg bg-primary px-3 py-2 text-white" to="/">
                     <VIcon name="fa-chart-pie" class="h-4 w-4" />
                     Dashboard
-                </a>
+                </RouterLink>
                 <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100" href="#">
                     <VIcon name="fa-file-alt" class="h-4 w-4" />
                     Analytics
@@ -60,6 +60,7 @@
                     <div v-show="menuOpen.management" class="space-y-1 border-t border-slate-200 px-3 py-2 text-slate-600">
                         <a class="block rounded-md px-2 py-1 hover:bg-slate-100" href="#">Team</a>
                         <a class="block rounded-md px-2 py-1 hover:bg-slate-100" href="#">Projects</a>
+                        <RouterLink class="block rounded-md px-2 py-1 hover:bg-slate-100" to="/roles">Roles</RouterLink>
                         <a class="block rounded-md px-2 py-1 hover:bg-slate-100" href="#">Settings</a>
                     </div>
                 </div>

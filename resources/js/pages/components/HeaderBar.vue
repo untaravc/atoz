@@ -17,7 +17,7 @@
             </div>
             <div class="flex items-center gap-4 text-sm text-slate-600">
                 <button class="rounded-full border border-slate-200 px-4 py-2 font-medium hover:bg-slate-50">Export</button>
-                <button class="rounded-full bg-slate-900 px-4 py-2 font-semibold text-white">New report</button>
+                <button class="rounded-full bg-primary px-4 py-2 font-semibold text-white hover:bg-primary/90">New report</button>
             </div>
         </div>
     </header>

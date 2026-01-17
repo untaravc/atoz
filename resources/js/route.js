@@ -1,16 +1,31 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import DashboardRoot from './pages/DashboardRoot.vue';
+import Layout from './Layout.vue';
+import RolesIndex from './pages/roles/RolesIndex.vue';
+import DashboardIndex from './pages/dashboard/DashboardIndex.vue';
 
 const routes = [
     {
         path: '/',
-        name: 'dashboard',
-        component: DashboardRoot,
+        name: 'layout',
+        component: Layout,
+        children: [
+            {
+                path: '/dashboard',
+                name: 'dashboard',
+                component: DashboardIndex,
+            },
+            {
+                path: '/roles',
+                name: 'roles',
+                component: RolesIndex,
+            },
+        ]
     },
+
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory('/bo'),
     routes,
 });
 

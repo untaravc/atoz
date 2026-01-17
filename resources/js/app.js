@@ -4,6 +4,6 @@ import { createApp } from 'vue';
 import { OhVueIcon } from 'oh-vue-icons';
 import './icons';
 import router from './route';
-import DashboardRoot from './pages/DashboardRoot.vue';
+import App from './App.vue';
 
-createApp(DashboardRoot).component('VIcon', OhVueIcon).use(router).mount('#app');
+createApp(App).component('VIcon', OhVueIcon).use(router).mount('#app');

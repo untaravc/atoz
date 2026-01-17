@@ -9,4 +9,5 @@ Route::get('/', function () {
 
 Route::group(['prefix' => 'bo'], function () {
     Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/{any}', [DashboardController::class, 'index'])->where('path', '([A-z\d\-\/_.]+)?');
 });
