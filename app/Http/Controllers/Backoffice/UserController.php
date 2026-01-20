@@ -11,7 +11,13 @@ class UserController extends Controller
 {
     public function index()
     {
-        return response()->json(User::query()->latest()->paginate(15));
+        return response()->json(
+            User::query()
+                ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+                ->select('users.*', 'roles.name as role_name')
+                ->latest('users.created_at')
+                ->paginate(15)
+        );
     }
 
     public function store(Request $request)

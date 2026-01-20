@@ -13,7 +13,7 @@ class MenuSeeder extends Seeder
     public function run(): void
     {
         $dashboard = Menu::updateOrCreate(
-            ['route' => '/bo'],
+            ['route' => '/bo/dashboard'],
             [
                 'name' => 'Dashboard',
                 'icon' => 'fa-chart-pie',

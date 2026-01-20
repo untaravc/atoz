@@ -13,6 +13,11 @@ class RoleController extends Controller
         return response()->json(Role::query()->latest()->paginate(15));
     }
 
+    public function roleList()
+    {
+        return response()->json(Role::query()->latest()->get());
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

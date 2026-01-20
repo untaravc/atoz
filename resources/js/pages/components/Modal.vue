@@ -13,8 +13,13 @@
                     <p v-if="eyebrow" class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ eyebrow }}</p>
                     <h2 class="text-lg font-semibold text-slate-900">{{ title }}</h2>
                 </div>
-                <button class="rounded-lg border border-slate-200 p-2 text-slate-600" type="button" @click="$emit('close')">
-                    Close
+                <button
+                    class="p-2 text-slate-600 hover:bg-slate-50 cursor-pointer"
+                    type="button"
+                    aria-label="Close"
+                    @click="$emit('close')"
+                >
+                    <VIcon name="fa-times" class="h-4 w-4" />
                 </button>
             </div>
             <div class="mt-5">

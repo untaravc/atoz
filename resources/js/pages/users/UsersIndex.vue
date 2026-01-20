@@ -48,7 +48,7 @@
                             <tr v-for="(user, index) in users" :key="user.id">
                                 <td class="px-3 py-3 font-medium text-slate-900">{{ user.name }}</td>
                                 <td class="px-3 py-3">{{ user.email }}</td>
-                                <td class="px-3 py-3">{{ user.role_id ?? '-' }}</td>
+                                <td class="px-3 py-3">{{ user.role_name || '-' }}</td>
                                 <td class="px-3 py-3 text-right">
                                     <div class="relative inline-flex justify-end">
                                         <button
@@ -141,14 +141,17 @@
                     />
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-slate-600" for="user-role">Role ID</label>
-                    <input
+                    <label class="text-sm font-medium text-slate-600" for="user-role">Role</label>
+                    <select
                         id="user-role"
                         v-model.number="form.role_id"
-                        class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-slate-400 focus:outline-none"
-                        placeholder="Optional"
-                        type="number"
-                    />
+                        class="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-slate-400 focus:outline-none"
+                    >
+                        <option :value="null">No role</option>
+                        <option v-for="role in roles" :key="role.id" :value="role.id">
+                            {{ role.name }}
+                        </option>
+                    </select>
                 </div>
                 <p v-if="error" class="text-xs text-rose-500">{{ error }}</p>
                 <div class="flex items-center justify-end gap-2">
@@ -217,6 +220,7 @@ import { useConfigLoaderStore } from '../../states/config_loader';
 import { toaster } from '../../utils/utils.js';
 
 const users = ref([]);
+const roles = ref([]);
 const loading = ref(false);
 const refreshing = ref(false);
 const saving = ref(false);
@@ -267,6 +271,15 @@ const fetchUsers = async (page = currentPage.value) => {
         error.value = 'Failed to load users.';
     } finally {
         loading.value = false;
+    }
+};
+
+const fetchRoles = async () => {
+    try {
+        const data = await apiGet('/api/role-list');
+        roles.value = Array.isArray(data) ? data : data.data || [];
+    } catch (err) {
+        roles.value = [];
     }
 };
 
@@ -405,5 +418,7 @@ const confirmDelete = async () => {
     }
 };
 
-onMounted(fetchUsers);
+onMounted(async () => {
+    await Promise.all([fetchUsers(), fetchRoles()]);
+});
 </script>
