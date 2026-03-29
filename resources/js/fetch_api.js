@@ -1,11 +1,20 @@
+const getStoredToken = () => {
+    try {
+        return localStorage.getItem('auth_token');
+    } catch (e) {
+        return null;
+    }
+};
+
 const withAuth = (headers, token) => {
-    if (!token) {
+    const resolvedToken = token === undefined ? getStoredToken() : token;
+    if (!resolvedToken) {
         return headers;
     }
 
     return {
         ...headers,
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${resolvedToken}`,
     };
 };
 
@@ -30,6 +39,16 @@ const request = async (method, url, data, token) => {
     const payload = text ? JSON.parse(text) : null;
 
     if (!response.ok) {
+        if (response.status === 401 && !url.endsWith('/api/login')) {
+            try {
+                localStorage.removeItem('auth_token');
+            } catch (e) {
+                // ignore
+            }
+            if (typeof window !== 'undefined') {
+                window.location.assign('/bo/401');
+            }
+        }
         const error = new Error('API request failed');
         error.status = response.status;
         error.payload = payload;

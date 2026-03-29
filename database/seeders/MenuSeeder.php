@@ -28,6 +28,17 @@ class MenuSeeder extends Seeder
             [
                 'route' => null,
                 'icon' => 'fa-cog',
+                'sort_order' => 3,
+                'status' => true,
+            ]
+        );
+
+        Menu::updateOrCreate(
+            ['route' => '/bo/transactions'],
+            [
+                'name' => 'Transactions',
+                'icon' => 'fa-receipt',
+                'parent_id' => null,
                 'sort_order' => 2,
                 'status' => true,
             ]
@@ -73,6 +84,28 @@ class MenuSeeder extends Seeder
                 'icon' => 'fa-file-alt',
                 'parent_id' => $setting->id,
                 'sort_order' => 4,
+                'status' => true,
+            ]
+        );
+
+        Menu::updateOrCreate(
+            ['route' => '/bo/offices'],
+            [
+                'name' => 'Offices',
+                'icon' => 'fa-building',
+                'parent_id' => $setting->id,
+                'sort_order' => 5,
+                'status' => true,
+            ]
+        );
+
+        Menu::updateOrCreate(
+            ['route' => '/bo/categories'],
+            [
+                'name' => 'Categories',
+                'icon' => 'fa-tags',
+                'parent_id' => $setting->id,
+                'sort_order' => 6,
                 'status' => true,
             ]
         );
